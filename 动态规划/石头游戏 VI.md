@@ -36,26 +36,74 @@ n == stones.length
 则dp[1][n] 即为我们最后的答案
 
 自己看到的最好的题解：
-若Alice先从第i个石头到第j个石头中进行选择，
-若取左边，Alice的得分为 sum[i+1][j],那么Bob则要从第i+1个石头到第j个石头中进行选择，
+
 解题思路：
 首先明确——谁是先手谁的得分就最大.
-对于 dp[i][j] 定义为区间 [i,j] 我们要的结果，在区间 [i, j]，dp[i][j] = 先手的总分 - 后手的总分。
-如果 dp[i][j]这个区间当前是鲍勃操作，那么鲍勃的得分一定最大。
+- 对于 dp[i][j] 定义为区间 [i,j] 我们要的结果，在区间 [i, j]，dp[i][j] = 先手的总分 - 后手的总分。
+
+- 如果 dp[i][j]这个区间当前是鲍勃操作，那么鲍勃的得分一定最大。
 选择去掉 stones[i] 后当前的分数为 sum(stones[i + 1], stones[j]).
 那么区间 [i + 1, j]鲍勃的得分是多少呢？不用管它，dp[i + 1][j] 一定为对手爱丽丝作为先手得到的结果，因为谁先手谁的得分最大，则 dp[i + 1][j] = 爱丽丝得分 - 鲍勃的得分。
-sum(stones[i + 1], stones[j]) - dp[i + 1][j]
+
+
+- sum(stones[i + 1], stones[j]) - dp[i + 1][j]
 = 鲍勃当前操作得分 - （爱丽丝的总分 - 鲍勃的总分）
 = 鲍勃当前操作得分 + 鲍勃的总分 - 爱丽丝的总分
 = 鲍勃新的总分 - 爱丽丝的总分 > 0（谁先手谁最大）。
 如果去掉 stones[j] 则原理同上.
-如果当前 dp[i][j] 是爱丽丝，则将上面的叙述中爱丽丝和鲍勃名字互换。
+
+- 如果当前 dp[i][j] 是爱丽丝，则将上面的叙述中爱丽丝和鲍勃名字互换。
 对于爱丽丝我们很好理解为什么要最大化
 dp[i][j] = max(sum(stones[i + 1], stones[j]) - dp[i + 1][j], sum(stones[i], stones[j - 1]) - dp[i][j - 1]);
-那么鲍勃为什么也要最大化 dp[i][j] 呢，因为爱丽丝先手，鲍勃必输，题目给出了。所以只有当鲍勃操作时 dp[i][j] 最大，才能让爱丽丝操作时得到的结果最小,满足鲍勃的野心
-爱丽丝当前操作得分 - (鲍勃的总分 - 爱丽丝的总分)(鲍勃操作时的最大化差值)
-基础情况为只有 2 堆石子，值最大的那堆为答案，所以从只有2堆石子开始往上进行状态转移。
 
+- 那么鲍勃为什么也要最大化 dp[i][j] 呢，因为爱丽丝先手，鲍勃必输，题目给出了。所以只有当鲍勃操作时 dp[i][j] 最大，才能让爱丽丝操作时得到的结果最小,满足鲍勃的野心
+爱丽丝当前操作得分 - (鲍勃的总分 - 爱丽丝的总分)(鲍勃操作时的最大化差值)
+- 基础情况为只有 2 堆石子，值最大的那堆为答案，所以从只有2堆石子开始往上进行状态转移。
+
+
+```java
+//out of time
+class Solution {
+    public int stoneGameVII(int[] stones) {
+        int sum = 0;
+        for (int st:stones) sum+=st;
+        return diff(stones,0,stones.length-1,sum);
+
+    }
+    private int diff(int[] stones,int left,int right,int sum){
+        if (left == right){
+            return 0;
+        }
+        int gainLeft = sum-stones[left];
+        int DiffRemoveLeft = gainLeft-diff(stones,left+1,right,gainLeft);
+        int gainRight = sum - stones[right];
+        int DiffRemoveRight = gainRight-diff(stones,left,right-1,gainRight);
+        return Math.max(DiffRemoveLeft,DiffRemoveRight);
+    }
+}
+
+//解法2
+class Solution {
+    public int stoneGameVII(int[] stones) {
+         int n = stones.length ;
+
+        int[] sum = new int[n + 1];
+
+        for (int i = 0; i < n; i++)
+            sum[i + 1] = sum[i] + stones[i];
+
+        int[][] dp = new int[n + 1][n + 1];
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 1, j = i + len - 1; j <= n; ++i, ++j) {
+                dp[i][j] = Math.max(sum[j] - sum[i] - dp[i + 1][j], sum[j - 1] - sum[i - 1] - dp[i][j - 1]);
+            }
+        }
+        return dp[1][n];
+
+    }
+}
+
+```
 作者：jiang-xian-sen-3
 链接：https://leetcode-cn.com/problems/stone-game-vii/solution/cbo-yi-si-lu-xiang-jie-by-jiang-xian-sen-j2tj/
 来源：力扣（LeetCode）
