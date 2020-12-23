@@ -26,6 +26,13 @@
 ```python3
 #只需找到这个字符串中最大的数字即可
 因为十-二进制数在各个位上只能是0或者1，所以比如在某位上出现9，那么至少出现9个十-二进制数
+
+class Solution:
+    def minPartitions(self, n: str) -> int:
+        list1 = []
+        for i in n:
+            list1.append(int(i))
+        return max(list1)
 ```
 
 
